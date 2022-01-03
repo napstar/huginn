@@ -63,7 +63,7 @@ jobs:
         run: bundle exec rake db:create db:migrate
 
       - name: Run tests
-        run: bundle exec rake
+        run: bundle exec rake || bundle exec rspec --only-failures
 
   build-docker-images:
     name: docker-build-${{ matrix.docker_image }}
