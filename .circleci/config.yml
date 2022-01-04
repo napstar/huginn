@@ -1,0 +1,82 @@
+version: 2.1
+
+references:
+  matrix_build: &matrix_build
+    build:
+      matrix:
+        parameters:
+          ruby_version:
+            - "2.7"
+            - "2.6"
+          database_adapter:
+            - mysql2
+            - postgresql
+
+orbs:
+  ruby: circleci/ruby@1.2.0
+
+jobs:
+  build:
+    parameters:
+      ruby_version:
+        type: string
+      database_adapter:
+        type: string
+    docker:
+      - image: cimg/ruby:<<parameters.ruby_version>>
+      - image: circleci/postgres:latest
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: huginn_test
+      - image: circleci/mysql:latest
+        command: [--default-authentication-plugin=mysql_native_password]
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: huginn_test
+    environment:
+      DATABASE_ADAPTER: <<parameters.database_adapter>>
+      DATABASE_HOST: "127.0.0.1"
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: password
+      BUNDLE_WITHOUT: "production"
+    steps:
+      - restore_cache:
+          name: Restore tools
+          keys:
+            - phantomjs-2.1.1
+      - run:
+          name: Set up tools
+          command: |
+            if [ ! -f /usr/local/bin/phantomjs ]; then
+              phantomjs_version=2.1.1
+              phantomjs_distname="phantomjs-${phantomjs_version}-linux-x86_64"
+              curl -Ls "https://bitbucket.org/ariya/phantomjs/downloads/$phantomjs_distname.tar.bz2" | \
+                sudo tar jxvf - --strip-components=2 -C /usr/local/bin/ "$phantomjs_distname"/bin/phantomjs
+            fi
+      - save_cache:
+          name: Save tools
+          key: phantomjs-2.1.1
+          paths:
+            - /usr/local/bin/phantomjs
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Database setup
+          command: |
+            case "$DATABASE_ADAPTER" in
+              postgresql)
+                dockerize -wait tcp://localhost:5432 -timeout 1m
+                ;;
+              mysql2)
+                dockerize -wait tcp://localhost:3306 -timeout 1m
+            esac
+
+            bundle exec rake db:create db:migrate
+      - ruby/rspec-test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - <<: *matrix_build
