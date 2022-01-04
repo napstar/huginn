@@ -163,6 +163,7 @@ group :development do
     gem 'rspec-rails'
     gem 'rspec-collection_matchers', '~> 1.1.0'
     gem 'rspec-html-matchers', '~> 0.8'
+    gem 'rspec_junit_formatter'
     gem 'rails-controller-testing'
     gem 'shoulda-matchers'
     gem 'vcr'

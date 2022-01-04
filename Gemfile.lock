@@ -619,6 +619,8 @@ GEM
       rspec-mocks (~> 3.8.0)
       rspec-support (~> 3.8.0)
     rspec-support (3.8.3)
+    rspec_junit_formatter (0.5.0)
+      rspec-core (>= 2, < 4, != 2.12.0)
     rturk (2.12.1)
       erector
       nokogiri
@@ -818,6 +820,7 @@ DEPENDENCIES
   rspec-collection_matchers (~> 1.1.0)
   rspec-html-matchers (~> 0.8)
   rspec-rails
+  rspec_junit_formatter
   rturk (~> 2.12.1)
   ruby-growl (~> 4.1.0)
   rufus-scheduler (~> 3.4)
