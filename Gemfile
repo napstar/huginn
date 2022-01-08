@@ -166,6 +166,7 @@ group :development do
     gem 'rspec_junit_formatter'
     gem 'rails-controller-testing'
     gem 'shoulda-matchers'
+    gem 'super_diff'
     gem 'vcr'
     gem 'webmock', '~> 3.5.1'
   end
